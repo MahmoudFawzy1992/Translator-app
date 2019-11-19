@@ -4,10 +4,7 @@
             <form class="card card-body bg-light form-inline d-inline-block" v-on:submit="formSubmit">
                 <input type="text" class="form-control" v-model="textToTranslate" placeholder="Enter A Word">
                 <select class="form-control" v-model="language">
-                    <option value="ru">Russian</option>
-                    <option value="es">Spanish</option>
-                    <option value="fr">French</option>
-                    <option value="zh">Chinese</option>
+                    <option v-for="(langeName, langCode) in langSelect" :key="langeName" :value="langCode">{{langeName}}</option>
                 </select>
                 <input class="btn btn-primary" :disabled="textToTranslate == isDisabled" type="submit" value="Translate">
             </form>
@@ -24,23 +21,21 @@ export default {
           textToTranslate: '',
           language: '',
           isDisabled: null,
-          langSelect: []
+          langSelect: {}
       }
-  },
-  created() {
-      this.language = 'ru';
   },
   mounted() {
       this.isDisabled = this.textToTranslate;
       
       this.$http.get('https://translate.yandex.net/api/v1.5/tr.json/getLangs?key=trnsl.1.1.20191117T213126Z.f79359061f81d7c9.809ab73b0f1e7431657cb59a009599f94cee2b12&ui=langs')
       .then((response) => {
-        console.log(response.bodyText);
-      })
+        this.langSelect = response.body.langs
+        // console.log(response.body.langs);
+      });
   },
   methods: {
       formSubmit(e) {
-          this.$emit('formSubmit', this.textToTranslate, this.language);
+          this.$emit('formSubmit', this.textToTranslate, this.language, this.langSelect);
           e.preventDefault();
       },
       
